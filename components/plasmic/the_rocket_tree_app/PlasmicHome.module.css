@@ -1,0 +1,38 @@
+.testColumn {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-shrink: 1;
+  max-width: 100%;
+  flex-wrap: nowrap;
+  opacity: 1;
+  column-gap: var(--token-RuQNZpYm0Yds);
+  overflow: visible;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.2);
+  transition-property: all;
+  transition-duration: 1s;
+  min-width: 0;
+  -webkit-transition-property: all;
+  -webkit-transition-duration: 1s;
+  --plsmc-rc-col-gap: var(--token-RuQNZpYm0Yds);
+  padding: 8%;
+}
+.testColumn > :nth-child(1n + 1) {
+  width: calc((100% - 0 * var(--plsmc-rc-col-gap, 0px)) * 12 / 12);
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  padding: 450px;
+}

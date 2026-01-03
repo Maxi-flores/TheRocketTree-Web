@@ -1,0 +1,80 @@
+.ariaSwitch:global(.__wab_instance) {
+  object-fit: cover;
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  color: var(--token-_GtgnUciMM8k);
+  font-family: var(--token-zsmpMYNZNnC7);
+  font-size: var(--token-U4nFfusRLOhb);
+  line-height: var(--token-UsHB0eJMltu6);
+  width: 100%;
+  flex-direction: column;
+  row-gap: var(--token-2AWAyCzAJgz2);
+  min-width: 0;
+}
+.ariaSwitch[data-disabled]:global(.__wab_instance) {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.ariaSwitch[data-readonly]:global(.__wab_instance) {
+  pointer-events: none;
+  cursor: default;
+}
+.freeBox {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  column-gap: var(--token-VwsfoiemBq-F);
+}
+.switchIndicator {
+  height: auto;
+  width: var(--token-mS9ufzXTrnEk);
+  display: flex;
+  background: var(--token-HjWJhDJyfFLP);
+  cursor: pointer;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-shrink: 0;
+  border-radius: 99px;
+  padding: var(--token-XpvizP-yv1mR);
+}
+.ariaSwitch[data-selected] .switchIndicator {
+  background: var(--token-tpHxfn3r_bWe);
+}
+.ariaSwitch[data-focus-visible] .switchIndicator {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: var(--token-tpHxfn3r_bWe);
+  outline-offset: 1px;
+}
+.ariaSwitch[data-disabled] .switchIndicator {
+  cursor: not-allowed;
+}
+.thumb {
+  display: flex;
+  position: relative;
+  width: var(--token-5uQp3tcfbfks);
+  background: var(--token-XBl7AWV1ll7W);
+  height: var(--token-5uQp3tcfbfks);
+  flex-direction: row;
+  transition-property: all;
+  transition-duration: 0.1s;
+  transition-timing-function: ease-out;
+  transform: skew(0deg, 0deg);
+  box-shadow: 0px 0px 3px 0px #00000040;
+  flex-shrink: 0;
+  -webkit-transition-property: all;
+  -webkit-transition-timing-function: ease-out;
+  -webkit-transition-duration: 0.1s;
+  border-radius: 99px;
+}
+.ariaSwitch[data-selected] .thumb {
+  transform: translate3d(12px, 0px, 0px);
+}
+.description:global(.__wab_instance):global(.__wab_instance) {
+  max-width: 100%;
+  position: relative;
+}
