@@ -3,16 +3,15 @@ import {
   Routes,
   Route,
   useNavigate,
-  useLocation,
 } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { PlasmicRootProvider } from "@plasmicapp/loader-react";
 import { PLASMIC } from "./plasmic/loader";
 import { VisualCanvas } from "./visual/VisualCanvas";
 
-/* ---------------- Home (Plasmic) ---------------- */
+/* ---------------- Plasmic Wrapper ---------------- */
 
-function HomeWrapper() {
+function PlasmicPageWrapper() {
   const navigate = useNavigate();
 
   return (
@@ -23,6 +22,11 @@ function HomeWrapper() {
       exit={{ opacity: 0, y: -40 }}
       transition={{ duration: 1.1, ease: "easeInOut" }}
     >
+      {/* 
+        IMPORTANT:
+        - Do NOT hardcode page="Home"
+        - Let Plasmic resolve by URL (/ , /Home, etc.)
+      */}
       <PLASMIC.Page
         componentProps={{
           LaunchButton: {
@@ -33,7 +37,6 @@ function HomeWrapper() {
     </motion.main>
   );
 }
-
 
 /* ---------------- App Shell ---------------- */
 
@@ -51,29 +54,24 @@ function AppShell() {
   );
 }
 
-/* ---------------- Animated Routes ---------------- */
-
-function AnimatedRoutes() {
-  return (
-    <AnimatePresence mode="wait">
-      <Routes>
-        {/* Plasmic pages */}
-        <Route path="/*" element={<HomeWrapper />} />
-
-        {/* App shell */}
-        <Route path="/app" element={<AppShell />} />
-      </Routes>
-    </AnimatePresence>
-  );
-}
-
 /* ---------------- Root App ---------------- */
 
 export default function App() {
   return (
     <PlasmicRootProvider loader={PLASMIC}>
+      {/* Global GPU / background layer */}
+      <VisualCanvas />
+
       <BrowserRouter>
-        <AnimatedRoutes />
+        <AnimatePresence mode="wait">
+          <Routes>
+            {/* App shell must be explicit */}
+            <Route path="/app" element={<AppShell />} />
+
+            {/* EVERYTHING else is Plasmic */}
+            <Route path="/*" element={<PlasmicPageWrapper />} />
+          </Routes>
+        </AnimatePresence>
       </BrowserRouter>
     </PlasmicRootProvider>
   );

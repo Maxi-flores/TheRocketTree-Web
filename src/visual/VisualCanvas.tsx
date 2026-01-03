@@ -1,17 +1,23 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+import { treeState } from "./treeState";
+import vertexShader from "./shaders/fullScreen.vert?raw";
+import fragmentShader from "./shaders/treeSpace.frag?raw";
+
 export function VisualCanvas() {
   const mountRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    const mount = mountRef.current;
+    if (!mount) return;
 
-    /* ---------------- Renderer ---------------- */
+    /* ---------- Renderer ---------- */
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
+      powerPreference: "high-performance",
     });
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -21,97 +27,85 @@ export function VisualCanvas() {
     renderer.domElement.style.zIndex = "-1";
     renderer.domElement.style.pointerEvents = "none";
 
-    mountRef.current.appendChild(renderer.domElement);
+    mount.appendChild(renderer.domElement);
 
-    /* ---------------- Scene ---------------- */
+    /* ---------- Scene & Camera ---------- */
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-    /* ---------------- Uniforms ---------------- */
+    /* ---------- Uniforms ---------- */
 
     const uniforms = {
       uTime: { value: 0 },
+      uGrowth: { value: 0 }, // 🌱 controlled externally
       uResolution: {
-        value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+        value: new THREE.Vector2(
+          window.innerWidth,
+          window.innerHeight
+        ),
       },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     };
 
-    /* ---------------- Shader ---------------- */
+    /* ---------- Material ---------- */
 
     const material = new THREE.ShaderMaterial({
       uniforms,
-      vertexShader: `
-        void main() {
-          gl_Position = vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        precision highp float;
-
-        uniform float uTime;
-        uniform vec2 uResolution;
-        uniform vec2 uMouse;
-
-        float ripple(vec2 p, vec2 center) {
-          float d = length(p - center);
-          return sin(d * 12.0 - uTime * 3.0) / (d * 6.0 + 1.0);
-        }
-
-        void main() {
-          vec2 uv = gl_FragCoord.xy / uResolution.xy;
-          vec2 p = uv * 2.0 - 1.0;
-
-          vec2 m = uMouse * 2.0 - 1.0;
-
-          float r = ripple(p, m);
-
-          vec3 base = vec3(0.02, 0.03, 0.09);
-          vec3 accent = vec3(0.95, 0.45, 0.15);
-
-          vec3 color = mix(base, accent, r * 0.8 + 0.4);
-
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `,
+      vertexShader,
+      fragmentShader,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
     });
 
     const geometry = new THREE.PlaneGeometry(2, 2);
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    /* ---------------- Interaction ---------------- */
+    /* ---------- Interaction ---------- */
 
-    const onMove = (e: MouseEvent) => {
+    const setPointer = (x: number, y: number) => {
       uniforms.uMouse.value.set(
-        e.clientX / window.innerWidth,
-        1.0 - e.clientY / window.innerHeight
+        x / window.innerWidth,
+        1.0 - y / window.innerHeight
       );
     };
 
-    const onTouch = (e: TouchEvent) => {
-      const t = e.touches[0];
-      uniforms.uMouse.value.set(
-        t.clientX / window.innerWidth,
-        1.0 - t.clientY / window.innerHeight
-      );
+    const onMouseMove = (e: MouseEvent) => {
+      setPointer(e.clientX, e.clientY);
     };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("touchmove", onTouch);
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const t = e.touches[0];
+        setPointer(t.clientX, t.clientY);
+      }
+    };
 
-    /* ---------------- Loop ---------------- */
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
 
-    let raf: number;
+    /* ---------- Animation Loop ---------- */
+
+    let rafId = 0;
+    const growthLerpSpeed = 0.015; // 🌿 organic response speed
+
     const animate = () => {
-      uniforms.uTime.value += 0.015;
+      uniforms.uTime.value += 0.01;
+
+      // 🌳 Smoothly approach target growth (route-controlled)
+      uniforms.uGrowth.value +=
+        (treeState.targetGrowth - uniforms.uGrowth.value) *
+        growthLerpSpeed;
+
       renderer.render(scene, camera);
-      raf = requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
     };
+
     animate();
 
-    /* ---------------- Resize ---------------- */
+    /* ---------- Resize ---------- */
 
     const onResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -120,21 +114,32 @@ export function VisualCanvas() {
         window.innerHeight
       );
     };
+
     window.addEventListener("resize", onResize);
 
-    /* ---------------- Cleanup ---------------- */
+    /* ---------- Cleanup ---------- */
 
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafId);
+
       window.removeEventListener("resize", onResize);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("touchmove", onTouchMove);
+
       geometry.dispose();
       material.dispose();
       renderer.dispose();
-      mountRef.current?.removeChild(renderer.domElement);
+
+      if (renderer.domElement.parentNode) {
+        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
     };
   }, []);
 
-  return <div ref={mountRef} />;
+  return (
+    <div
+      ref={mountRef}
+      style={{ position: "fixed", inset: 0 }}
+    />
+  );
 }
