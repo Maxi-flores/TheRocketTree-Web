@@ -24,8 +24,8 @@ import MagicBento from "@/components/MagicBento"; // ← FIXED: NOW IMPORTED
 export const PLASMIC = initPlasmicLoader({
   projects: [
     {
-      id: "86xkvA5Bvu8CnDW9huPe8b",
-      token: "LKSxy92rfGjKSAgK5yDGQKKe3ZPcTSYklAfJYjjVhEpvnMWyVBqqQMnG18K8MTgOyBcruebWqGkWsH9Whr9cg",
+      id: "buGExq4AkRZHe4LYDqNJBW",
+      token: "mFRkIB7pJyLivqlHsRPal8yf5rjbdwOj0XSiEfA9EPc7yjlxWnU98bGuNBSGsHFCQl0SiQh1uC6J2zKAGLQ",
     },
   ],
   preview: true,

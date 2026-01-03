@@ -1,7 +1,0 @@
-# Shared libraries – sync once, never again
-components/plasmic/library_tabler_3_2_icons
-components/plasmic/library_tailwind_3_4_color_tokens
-components/plasmic/library_tailwind_3_4_number_tokens
-components/plasmic/antd_5_hostless
-components/plasmic/react_aria
-
